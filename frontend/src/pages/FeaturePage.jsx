@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import AIAnalysis from '../components/AIAnalysis';
 
 function formatLabel(key) {
@@ -38,6 +38,21 @@ function isBadgeField(field) {
   return ['status', 'severity', 'risk_level', 'alert_level', 'category', 'interpretation', 'resistance_pattern', 'habitat_risk', 'trend'].includes(field);
 }
 
+function Pagination({ page, totalPages, onPageChange }) {
+  if (totalPages <= 1) return null;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 16, justifyContent: 'center' }}>
+      <button className="btn btn-secondary" onClick={() => onPageChange(1)} disabled={page === 1}>&laquo;</button>
+      <button className="btn btn-secondary" onClick={() => onPageChange(page - 1)} disabled={page === 1}>&lsaquo;</button>
+      <span style={{ padding: '4px 12px', fontSize: 14, color: '#4a5568' }}>
+        Page {page} of {totalPages}
+      </span>
+      <button className="btn btn-secondary" onClick={() => onPageChange(page + 1)} disabled={page === totalPages}>&rsaquo;</button>
+      <button className="btn btn-secondary" onClick={() => onPageChange(totalPages)} disabled={page === totalPages}>&raquo;</button>
+    </div>
+  );
+}
+
 export default function FeaturePage({ feature }) {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -49,23 +64,50 @@ export default function FeaturePage({ feature }) {
   const [bulkAiResult, setBulkAiResult] = useState(null);
   const [bulkAiLoading, setBulkAiLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const LIMIT = 20;
 
-  const fetchItems = () => {
+  const token = localStorage.getItem('token');
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+  const fetchItems = useCallback((p = 1) => {
     setLoading(true);
-    fetch(`/api${feature.apiPath}`)
+    fetch(`/api${feature.apiPath}?page=${p}&limit=${LIMIT}`)
       .then(r => r.json())
-      .then(data => { setItems(Array.isArray(data) ? data : []); setLoading(false); })
+      .then(data => {
+        if (data && data.data) {
+          setItems(data.data);
+          setPage(data.pagination.page);
+          setTotalPages(data.pagination.totalPages);
+          setTotal(data.pagination.total);
+        } else if (Array.isArray(data)) {
+          // backward compat
+          setItems(data);
+        }
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
-  };
+  }, [feature.apiPath]);
 
   useEffect(() => {
-    fetchItems();
+    fetchItems(1);
     setSelected(null);
     setEditing(false);
     setCreating(false);
     setAiResult(null);
     setBulkAiResult(null);
+    setPage(1);
   }, [feature.key]);
+
+  const handleExportCSV = () => {
+    const url = `/api${feature.apiPath}?format=csv`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${feature.key}.csv`;
+    a.click();
+  };
 
   const handleRowClick = (item) => {
     setSelected(item);
@@ -75,9 +117,9 @@ export default function FeaturePage({ feature }) {
 
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this record?')) return;
-    await fetch(`/api${feature.apiPath}/${id}`, { method: 'DELETE' });
+    await fetch(`/api${feature.apiPath}/${id}`, { method: 'DELETE', headers: authHeaders });
     setSelected(null);
-    fetchItems();
+    fetchItems(page);
   };
 
   const handleEdit = () => {
@@ -104,14 +146,14 @@ export default function FeaturePage({ feature }) {
     });
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
       body: JSON.stringify(body),
     });
     if (res.ok) {
       setEditing(false);
       setCreating(false);
       setSelected(null);
-      fetchItems();
+      fetchItems(page);
     }
   };
 
@@ -120,7 +162,10 @@ export default function FeaturePage({ feature }) {
     setAiLoading(true);
     setAiResult(null);
     try {
-      const res = await fetch(`/api${feature.apiPath}/${selected.id}/${feature.aiEndpoint}`, { method: 'POST' });
+      const res = await fetch(`/api${feature.apiPath}/${selected.id}/${feature.aiEndpoint}`, {
+        method: 'POST',
+        headers: authHeaders,
+      });
       const data = await res.json();
       setAiResult(data.analysis);
     } catch (err) {
@@ -134,7 +179,10 @@ export default function FeaturePage({ feature }) {
     setBulkAiLoading(true);
     setBulkAiResult(null);
     try {
-      const res = await fetch(`/api${feature.apiPath}/${feature.aiBulk}`, { method: 'POST' });
+      const res = await fetch(`/api${feature.apiPath}/${feature.aiBulk}`, {
+        method: 'POST',
+        headers: authHeaders,
+      });
       const data = await res.json();
       setBulkAiResult(data.analysis);
     } catch (err) {
@@ -177,8 +225,11 @@ export default function FeaturePage({ feature }) {
           <p>Manage and analyze {feature.label.toLowerCase()} with AI-powered insights</p>
         </div>
         <div className="page-header-actions">
+          <button className="btn btn-secondary" onClick={handleExportCSV} title="Export as CSV">
+            Export CSV
+          </button>
           <button className="btn btn-ai" onClick={handleBulkAi} disabled={bulkAiLoading}>
-            🤖 {feature.aiBulkLabel}
+            {bulkAiLoading ? 'Analyzing...' : `AI ${feature.aiBulkLabel}`}
           </button>
           <button className="btn btn-primary" onClick={handleCreate}>
             + New Record
@@ -200,6 +251,10 @@ export default function FeaturePage({ feature }) {
           </div>
         ) : (
           <div className="data-table-container" style={{ marginTop: bulkAiResult || bulkAiLoading ? 24 : 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, color: '#6b7280', fontSize: 13 }}>
+              <span>{total} total records</span>
+              <span>Showing page {page} of {totalPages}</span>
+            </div>
             <table className="data-table">
               <thead>
                 <tr>
@@ -222,6 +277,7 @@ export default function FeaturePage({ feature }) {
                 ))}
               </tbody>
             </table>
+            <Pagination page={page} totalPages={totalPages} onPageChange={(p) => fetchItems(p)} />
           </div>
         )}
       </div>
@@ -252,7 +308,7 @@ export default function FeaturePage({ feature }) {
             </div>
             <div className="detail-actions">
               <button className="btn btn-ai" onClick={handleAiAnalyze} disabled={aiLoading}>
-                🤖 AI Analyze
+                {aiLoading ? 'Analyzing...' : 'AI Analyze'}
               </button>
               <button className="btn btn-primary" onClick={handleEdit}>Edit</button>
               <button className="btn btn-danger" onClick={() => handleDelete(selected.id)}>Delete</button>

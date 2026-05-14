@@ -2,13 +2,38 @@ const express = require('express');
 const pool = require('../db');
 const { queryAI } = require('../aiHelper');
 const router = express.Router();
+const auth = require('../middleware/auth');
+const { aiRateLimiter } = require('../middleware/rateLimiter');
+const persistAI = require('../middleware/persistAI');
+
+
 
 router.get('/', async (req, res) => {
+  if (req.query.format === 'csv') {
+    try {
+      const result = await pool.query('SELECT * FROM health_equity ORDER BY report_date DESC');
+      const rows = result.rows;
+      if (!rows.length) return res.status(204).send();
+      const headers = Object.keys(rows[0]);
+      const csv = [headers.join(','), ...rows.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','))].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="health_equity.csv"`);
+      return res.send(csv);
+    } catch (err) { return res.status(500).json({ error: err.message }); }
+  }
   try {
-    const result = await pool.query('SELECT * FROM health_equity ORDER BY report_date DESC');
-    res.json(result.rows);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 20);
+    const offset = (page - 1) * limit;
+    const [rows, countResult] = await Promise.all([
+      pool.query('SELECT * FROM health_equity ORDER BY report_date DESC LIMIT $1 OFFSET $2', [limit, offset]),
+      pool.query('SELECT COUNT(*) FROM health_equity'),
+    ]);
+    const total = parseInt(countResult.rows[0].count);
+    res.json({ data: rows.rows, pagination: { page, limit, total, totalPages: Math.ceil(total / limit) } });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
 
 router.get('/:id', async (req, res) => {
   try {
@@ -18,7 +43,7 @@ router.get('/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', auth, async (req, res) => {
   try {
     const { indicator, region, demographic_group, value, benchmark, disparity_ratio, data_source, report_date, notes } = req.body;
     const result = await pool.query(
@@ -30,7 +55,7 @@ router.post('/', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   try {
     const { indicator, region, demographic_group, value, benchmark, disparity_ratio, data_source, report_date, notes } = req.body;
     const result = await pool.query(
@@ -42,14 +67,14 @@ router.put('/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
   try {
     await pool.query('DELETE FROM health_equity WHERE id = $1', [req.params.id]);
     res.json({ message: 'Deleted successfully' });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.post('/:id/ai-analyze', async (req, res) => {
+router.post('/:id/ai-analyze', auth, aiRateLimiter, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM health_equity WHERE id = $1', [req.params.id]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -58,17 +83,19 @@ router.post('/:id/ai-analyze', async (req, res) => {
       'You are a health equity AI analyst. Analyze health disparities, identify root causes, and recommend evidence-based interventions to promote equity.',
       `Analyze this health equity indicator:\nIndicator: ${item.indicator}\nRegion: ${item.region}\nDemographic: ${item.demographic_group}\nValue: ${item.value}\nBenchmark: ${item.benchmark}\nDisparity Ratio: ${item.disparity_ratio}\nSource: ${item.data_source}\nNotes: ${item.notes}`
     );
+    await persistAI(req.user?.id, 'health_equity/ai', {}, analysis);
     res.json({ analysis, equity: item });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-router.post('/ai/disparity-analysis', async (req, res) => {
+router.post('/ai/disparity-analysis', auth, aiRateLimiter, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM health_equity ORDER BY report_date DESC');
     const analysis = await queryAI(
       'You are a health equity and social determinants AI. Identify the most significant health disparities, their root causes, and recommend targeted policy interventions.',
       `Analyze health equity data for disparities:\n${JSON.stringify(result.rows, null, 2)}`
     );
+    await persistAI(req.user?.id, 'health_equity/ai', {}, analysis);
     res.json({ analysis, data: result.rows });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });

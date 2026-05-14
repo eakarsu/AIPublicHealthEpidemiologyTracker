@@ -71,6 +71,22 @@ export default function Sidebar({ features, user, onLogout, currentPath }) {
             AI Command Center
             <span className="nav-badge" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white' }}>AI</span>
           </div>
+          <div className={`nav-item ${currentPath === '/ai-history' ? 'active' : ''}`} onClick={() => navigate('/ai-history')}>
+            <span className="nav-icon">📜</span>
+            AI History
+          </div>
+          <div className={`nav-item ${currentPath === '/alert-subscriptions' ? 'active' : ''}`} onClick={() => navigate('/alert-subscriptions')}>
+            <span className="nav-icon">🔔</span>
+            Alert Subscriptions
+          </div>
+          <div className={`nav-item ${currentPath === '/case-clustering' ? 'active' : ''}`} onClick={() => navigate('/case-clustering')}>
+            <span className="nav-icon">🧩</span>
+            Case Clustering
+          </div>
+          <div className={`nav-item ${currentPath === '/outbreak-intervention' ? 'active' : ''}`} onClick={() => navigate('/outbreak-intervention')}>
+            <span className="nav-icon">🛡️</span>
+            Outbreak Intervention
+          </div>
         </div>
       </nav>
 

@@ -8,6 +8,7 @@ const AI_FEATURES = [
   { key: 'environmental-health', icon: '🌍', title: 'Environmental Health Correlator', desc: 'Correlate water quality, air quality, and disease patterns to identify environmental health impacts.' },
   { key: 'pandemic-preparedness', icon: '🛡️', title: 'Pandemic Preparedness Assessment', desc: 'Assess readiness for potential pandemics based on hospital capacity, vaccination infrastructure, and AMR threats.' },
   { key: 'population-health', icon: '👥', title: 'Population Health Insights', desc: 'Analyze mortality trends, health equity, and syndromic patterns for population-level health recommendations.' },
+  { key: 'vaccination-coverage-forecast', icon: '💉', title: 'Vaccination Coverage Forecast', desc: 'Project coverage trajectories per campaign over a horizon and flag programs at risk of missing herd-immunity thresholds.' },
 ];
 
 export default function AICenter() {
@@ -23,8 +24,23 @@ export default function AICenter() {
     setLoading(true);
     setResult(null);
     try {
-      const res = await fetch(`/api/ai-center/${key}`, { method: 'POST' });
-      const data = await res.json();
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/ai-center/${key}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: '{}',
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = res.status === 503
+          ? (data.error || 'AI provider is not configured. Set OPENROUTER_API_KEY on the backend.')
+          : (data.error || `AI request failed (${res.status})`);
+        setResult('Error: ' + msg);
+        return;
+      }
       setResult(data.analysis);
     } catch (err) {
       setResult('Error: ' + err.message);
@@ -38,12 +54,23 @@ export default function AICenter() {
     setCustomLoading(true);
     setCustomResult(null);
     try {
+      const token = localStorage.getItem('token');
       const res = await fetch('/api/ai-center/custom-query', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ question: customQuery }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = res.status === 503
+          ? (data.error || 'AI provider is not configured. Set OPENROUTER_API_KEY on the backend.')
+          : (data.error || `AI request failed (${res.status})`);
+        setCustomResult('Error: ' + msg);
+        return;
+      }
       setCustomResult(data.analysis);
     } catch (err) {
       setCustomResult('Error: ' + err.message);

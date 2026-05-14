@@ -5,6 +5,34 @@ import Dashboard from './pages/Dashboard';
 import Sidebar from './components/Sidebar';
 import FeaturePage from './pages/FeaturePage';
 import AICenter from './pages/AICenter';
+import AIHistory from './pages/AIHistory';
+import AlertSubscriptions from './pages/AlertSubscriptions';
+import CaseClustering from './pages/CaseClustering';
+import OutbreakIntervention from './pages/OutbreakIntervention';
+
+// === Batch 07 Gaps & Frontend Mounts ===
+import CfNowcastCaseTrajectory from './pages/CfNowcastCaseTrajectory';
+import CfVariantTrackingForecasting from './pages/CfVariantTrackingForecasting';
+import CfEquityawareResourceAllocation from './pages/CfEquityawareResourceAllocation';
+import CfSocialDeterminantsRag from './pages/CfSocialDeterminantsRag';
+import CfMultilanguageHealthMessaging from './pages/CfMultilanguageHealthMessaging';
+import CfZoonoticSpilloverRiskModel from './pages/CfZoonoticSpilloverRiskModel';
+import GapNoOutbreakpredictionSpatialtemporalModeli from './pages/GapNoOutbreakpredictionSpatialtemporalModeli';
+import GapNoEquitygapanalysisDisparitiesByDemograp from './pages/GapNoEquitygapanalysisDisparitiesByDemograp';
+import GapNoInterventionrecommendationEvidencebased from './pages/GapNoInterventionrecommendationEvidencebased';
+import GapNoCaseclusteringAnomalyDetection from './pages/GapNoCaseclusteringAnomalyDetection';
+import GapNoVaccinationcoverageforecast from './pages/GapNoVaccinationcoverageforecast';
+import GapNoResourceallocationAi from './pages/GapNoResourceallocationAi';
+import GapNoRealtimeOutbreakMapdashboardRoute from './pages/GapNoRealtimeOutbreakMapdashboardRoute';
+import GapNoCaseLinelistDeduplicationWorkflow from './pages/GapNoCaseLinelistDeduplicationWorkflow';
+import GapNoSyndromicSurveillanceIngestionEdOtcP from './pages/GapNoSyndromicSurveillanceIngestionEdOtcP';
+import GapNoCdcstateHealthdepartmentApiIntegration from './pages/GapNoCdcstateHealthdepartmentApiIntegration';
+import GapNoContactTracingWorkflowBeyondDataStor from './pages/GapNoContactTracingWorkflowBeyondDataStor';
+import GapNoNotificationssmsPushForAlerts from './pages/GapNoNotificationssmsPushForAlerts';
+import GapNoReportingexportCsvpdf from './pages/GapNoReportingexportCsvpdf';
+import GapNoRbacForClinicalVsAdminRoles from './pages/GapNoRbacForClinicalVsAdminRoles';
+// === End Batch 07 ===
+
 
 const API = '/api';
 
@@ -100,6 +128,28 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="*" element={<Navigate to="/login" />} />
+          // === Batch 07 Gaps & Frontend Mounts ===
+          <Route path='/cf-nowcast-case-trajectory' element={<CfNowcastCaseTrajectory />} />
+          <Route path='/cf-variant-tracking-forecasting' element={<CfVariantTrackingForecasting />} />
+          <Route path='/cf-equityaware-resource-allocation' element={<CfEquityawareResourceAllocation />} />
+          <Route path='/cf-social-determinants-rag' element={<CfSocialDeterminantsRag />} />
+          <Route path='/cf-multilanguage-health-messaging' element={<CfMultilanguageHealthMessaging />} />
+          <Route path='/cf-zoonotic-spillover-risk-model' element={<CfZoonoticSpilloverRiskModel />} />
+          <Route path='/gap-no-outbreakprediction-spatialtemporal-modeli' element={<GapNoOutbreakpredictionSpatialtemporalModeli />} />
+          <Route path='/gap-no-equitygapanalysis-disparities-by-demograp' element={<GapNoEquitygapanalysisDisparitiesByDemograp />} />
+          <Route path='/gap-no-interventionrecommendation-evidencebased' element={<GapNoInterventionrecommendationEvidencebased />} />
+          <Route path='/gap-no-caseclustering-anomaly-detection' element={<GapNoCaseclusteringAnomalyDetection />} />
+          <Route path='/gap-no-vaccinationcoverageforecast' element={<GapNoVaccinationcoverageforecast />} />
+          <Route path='/gap-no-resourceallocation-ai' element={<GapNoResourceallocationAi />} />
+          <Route path='/gap-no-realtime-outbreak-mapdashboard-route' element={<GapNoRealtimeOutbreakMapdashboardRoute />} />
+          <Route path='/gap-no-case-linelist-deduplication-workflow' element={<GapNoCaseLinelistDeduplicationWorkflow />} />
+          <Route path='/gap-no-syndromic-surveillance-ingestion-ed-otc-p' element={<GapNoSyndromicSurveillanceIngestionEdOtcP />} />
+          <Route path='/gap-no-cdcstate-healthdepartment-api-integration' element={<GapNoCdcstateHealthdepartmentApiIntegration />} />
+          <Route path='/gap-no-contact-tracing-workflow-beyond-data-stor' element={<GapNoContactTracingWorkflowBeyondDataStor />} />
+          <Route path='/gap-no-notificationssms-push-for-alerts' element={<GapNoNotificationssmsPushForAlerts />} />
+          <Route path='/gap-no-reportingexport-csvpdf' element={<GapNoReportingexportCsvpdf />} />
+          <Route path='/gap-no-rbac-for-clinical-vs-admin-roles' element={<GapNoRbacForClinicalVsAdminRoles />} />
+          // === End Batch 07 ===
       </Routes>
     );
   }
@@ -111,6 +161,10 @@ function App() {
         <Routes>
           <Route path="/dashboard" element={<Dashboard features={FEATURES} />} />
           <Route path="/ai-center" element={<AICenter />} />
+          <Route path="/ai-history" element={<AIHistory />} />
+          <Route path="/alert-subscriptions" element={<AlertSubscriptions />} />
+          <Route path="/case-clustering" element={<CaseClustering />} />
+          <Route path="/outbreak-intervention" element={<OutbreakIntervention />} />
           {FEATURES.map(f => (
             <Route key={f.key} path={`/${f.key}`} element={<FeaturePage feature={f} />} />
           ))}
