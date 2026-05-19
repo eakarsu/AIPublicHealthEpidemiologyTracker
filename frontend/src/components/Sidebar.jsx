@@ -87,6 +87,10 @@ export default function Sidebar({ features, user, onLogout, currentPath }) {
             <span className="nav-icon">🛡️</span>
             Outbreak Intervention
           </div>
+          <div data-testid="nav-epi-views" className={`nav-item ${currentPath === '/custom-views' ? 'active' : ''}`} onClick={() => navigate('/custom-views')}>
+            <span className="nav-icon">🗺️</span>
+            Epi Views
+          </div>
         </div>
       </nav>
 

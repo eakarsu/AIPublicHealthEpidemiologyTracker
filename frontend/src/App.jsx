@@ -9,6 +9,7 @@ import AIHistory from './pages/AIHistory';
 import AlertSubscriptions from './pages/AlertSubscriptions';
 import CaseClustering from './pages/CaseClustering';
 import OutbreakIntervention from './pages/OutbreakIntervention';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 // === Batch 07 Gaps & Frontend Mounts ===
 import CfNowcastCaseTrajectory from './pages/CfNowcastCaseTrajectory';
@@ -165,6 +166,7 @@ function App() {
           <Route path="/alert-subscriptions" element={<AlertSubscriptions />} />
           <Route path="/case-clustering" element={<CaseClustering />} />
           <Route path="/outbreak-intervention" element={<OutbreakIntervention />} />
+          <Route path="/custom-views" element={<CustomViewsPage />} />
           {FEATURES.map(f => (
             <Route key={f.key} path={`/${f.key}`} element={<FeaturePage feature={f} />} />
           ))}
