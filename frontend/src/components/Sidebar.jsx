@@ -65,6 +65,24 @@ export default function Sidebar({ features, user, onLogout, currentPath }) {
         </div>
 
         <div className="nav-section">
+          <div className="nav-section-title">Pandemic Surveillance</div>
+          {[
+            { path: '/surveillance/wastewater-signals', icon: '🧪', label: 'Wastewater Signals' },
+            { path: '/surveillance/syndromic-surveillance', icon: '📡', label: 'Syndromic Surveillance' },
+            { path: '/surveillance/genomic-sequencing', icon: '🧬', label: 'Genomic Sequencing' },
+            { path: '/surveillance/outbreak-cluster-detection', icon: '🔍', label: 'Cluster Detection' },
+            { path: '/surveillance/r0-estimation', icon: '📈', label: 'R0 / Rt Estimation' },
+            { path: '/surveillance/who-ihr-reporting', icon: '🌐', label: 'WHO IHR Reporting' },
+            { path: '/surveillance/cross-border-alerts', icon: '🚨', label: 'Cross-Border Alerts' },
+          ].map(({ path, icon, label }) => (
+            <div key={path} className={`nav-item ${currentPath === path ? 'active' : ''}`} onClick={() => navigate(path)}>
+              <span className="nav-icon">{icon}</span>
+              {label}
+            </div>
+          ))}
+        </div>
+
+        <div className="nav-section">
           <div className="nav-section-title">AI Intelligence</div>
           <div className={`nav-item ${currentPath === '/ai-center' ? 'active' : ''}`} onClick={() => navigate('/ai-center')} style={{ background: currentPath === '/ai-center' ? 'rgba(128, 90, 213, 0.2)' : '' }}>
             <span className="nav-icon">🤖</span>

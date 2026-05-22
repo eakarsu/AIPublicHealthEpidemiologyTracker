@@ -1,0 +1,60 @@
+import SurveillanceFeaturePage from './SurveillanceFeaturePage';
+
+const feature = {
+  slug: 'who-ihr-reporting',
+  label: 'WHO IHR Reporting',
+  icon: '🌐',
+  description: 'Manage WHO International Health Regulations event notifications and PHEIC assessments',
+  fields: [
+    'event_id', 'event_title', 'country_reporting', 'region', 'pathogen', 'disease_name', 'event_type',
+    'detection_date', 'notification_date', 'report_date', 'ihr_article_involved', 'annex2_assessment_done',
+    'pheic_likelihood', 'international_spread_risk', 'human_health_risk', 'event_description',
+    'case_count', 'death_count', 'affected_areas', 'control_measures', 'notification_status',
+    'notification_completeness_score', 'reporter_credibility_score', 'verified', 'status', 'notes',
+  ],
+  columns: ['event_id', 'country_reporting', 'pathogen', 'pheic_likelihood', 'notification_status', 'report_date'],
+  fieldTypes: {
+    detection_date: 'date',
+    notification_date: 'date',
+    report_date: 'date',
+    case_count: 'number',
+    death_count: 'number',
+    notification_completeness_score: 'number',
+    reporter_credibility_score: 'number',
+    annex2_assessment_done: 'checkbox',
+    verified: 'checkbox',
+    event_title: 'textarea',
+    event_description: 'textarea',
+    affected_areas: 'textarea',
+    control_measures: 'textarea',
+    notes: 'textarea',
+    pheic_likelihood: { type: 'select', options: ['low', 'moderate', 'high', 'very_high'] },
+    international_spread_risk: { type: 'select', options: ['low', 'moderate', 'high', 'very_high'] },
+    human_health_risk: { type: 'select', options: ['low', 'moderate', 'high', 'very_high'] },
+    notification_status: { type: 'select', options: ['draft', 'submitted', 'acknowledged', 'under_review', 'closed'] },
+    event_type: { type: 'select', options: ['disease_outbreak', 'unusual_event', 'environmental_hazard', 'chemical_event', 'radiological_event'] },
+    status: { type: 'select', options: ['active', 'inactive', 'deleted'] },
+  },
+  aiVerbs: [
+    { name: 'assess-pheic-criteria', label: 'Assess PHEIC Criteria', fields: ['event_id', 'pathogen', 'case_count', 'international_spread_risk'] },
+    { name: 'generate-ihr-notification', label: 'Generate IHR Notification', fields: ['event_id', 'event_description', 'affected_areas'] },
+    { name: 'score-notification-completeness', label: 'Score Notification Completeness', fields: ['event_id', 'fields_provided', 'ihr_requirements'] },
+    { name: 'assess-international-spread-risk', label: 'Assess International Spread Risk', fields: ['pathogen', 'travel_volume', 'case_location'] },
+    { name: 'recommend-annex2-actions', label: 'Recommend Annex2 Actions', fields: ['event_id', 'annex2_criteria', 'assessment_scores'] },
+    { name: 'classify-event-severity', label: 'Classify Event Severity', fields: ['case_count', 'death_count', 'pathogen', 'affected_areas'] },
+    { name: 'generate-communication-draft', label: 'Generate Communication Draft', fields: ['event_id', 'audience', 'key_messages'] },
+    { name: 'assess-country-ihr-capacity', label: 'Assess Country IHR Capacity', fields: ['country_reporting', 'ihr_core_capacities', 'event_type'] },
+    { name: 'predict-escalation-likelihood', label: 'Predict Escalation Likelihood', fields: ['event_id', 'growth_trend', 'control_measures'] },
+    { name: 'recommend-verification-steps', label: 'Recommend Verification Steps', fields: ['event_id', 'reporter_credibility_score', 'initial_reports'] },
+    { name: 'summarize-event-timeline', label: 'Summarize Event Timeline', fields: ['event_id', 'detection_date', 'notification_date', 'key_events'] },
+    { name: 'assess-control-measure-adequacy', label: 'Assess Control Measure Adequacy', fields: ['event_id', 'control_measures', 'case_trend'] },
+    { name: 'generate-situation-report', label: 'Generate Situation Report', fields: ['event_id', 'current_status', 'audience'] },
+    { name: 'recommend-cross-border-actions', label: 'Recommend Cross-Border Actions', fields: ['event_id', 'neighboring_countries', 'spread_risk'] },
+    { name: 'classify-reporter-credibility', label: 'Classify Reporter Credibility', fields: ['country_reporting', 'historical_reporting', 'verification_level'] },
+    { name: 'summarize-ihr-compliance', label: 'Summarize IHR Compliance', fields: ['country_reporting', 'notification_timeliness', 'completeness_scores'] },
+  ],
+};
+
+export default function SurvWhoIhrReporting() {
+  return <SurveillanceFeaturePage feature={feature} />;
+}

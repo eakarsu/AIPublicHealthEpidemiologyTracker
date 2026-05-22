@@ -76,6 +76,16 @@ ensureTables()
     });
   });
 
+// === Pandemic Surveillance Network ===
+app.use('/api/surveillance/wastewater-signals', require('./routes/survFeat_wastewaterSignals'));
+app.use('/api/surveillance/syndromic-surveillance', require('./routes/survFeat_syndromicSurveillance'));
+app.use('/api/surveillance/genomic-sequencing', require('./routes/survFeat_genomicSequencing'));
+app.use('/api/surveillance/outbreak-cluster-detection', require('./routes/survFeat_outbreakClusterDetection'));
+app.use('/api/surveillance/r0-estimation', require('./routes/survFeat_r0Estimation'));
+app.use('/api/surveillance/who-ihr-reporting', require('./routes/survFeat_whoIhrReporting'));
+app.use('/api/surveillance/cross-border-alerts', require('./routes/survFeat_crossBorderAlerts'));
+// === End Pandemic Surveillance Network ===
+
 // AI feature mount: nowcast
 app.use('/api/ai/nowcast', require('./routes/ai-nowcast'));
 // === Batch 07 Gaps & Frontend Mounts ===

@@ -32,7 +32,22 @@ import GapNoContactTracingWorkflowBeyondDataStor from './pages/GapNoContactTraci
 import GapNoNotificationssmsPushForAlerts from './pages/GapNoNotificationssmsPushForAlerts';
 import GapNoReportingexportCsvpdf from './pages/GapNoReportingexportCsvpdf';
 import GapNoRbacForClinicalVsAdminRoles from './pages/GapNoRbacForClinicalVsAdminRoles';
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
+
 // === End Batch 07 ===
+
+// === Pandemic Surveillance Features ===
+import SurvWastewaterSignals from './pages/surveillance/SurvWastewaterSignals';
+import SurvSyndromicSurveillance from './pages/surveillance/SurvSyndromicSurveillance';
+import SurvGenomicSequencing from './pages/surveillance/SurvGenomicSequencing';
+import SurvOutbreakClusterDetection from './pages/surveillance/SurvOutbreakClusterDetection';
+import SurvR0Estimation from './pages/surveillance/SurvR0Estimation';
+import SurvWhoIhrReporting from './pages/surveillance/SurvWhoIhrReporting';
+import SurvCrossBorderAlerts from './pages/surveillance/SurvCrossBorderAlerts';
+// === End Pandemic Surveillance Features ===
 
 
 const API = '/api';
@@ -127,6 +142,10 @@ function App() {
   if (!token) {
     return (
       <Routes>
+        <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="*" element={<Navigate to="/login" />} />
           // === Batch 07 Gaps & Frontend Mounts ===
@@ -170,6 +189,15 @@ function App() {
           {FEATURES.map(f => (
             <Route key={f.key} path={`/${f.key}`} element={<FeaturePage feature={f} />} />
           ))}
+          {/* Pandemic Surveillance Routes */}
+          <Route path="/surveillance/wastewater-signals" element={<SurvWastewaterSignals />} />
+          <Route path="/surveillance/syndromic-surveillance" element={<SurvSyndromicSurveillance />} />
+          <Route path="/surveillance/genomic-sequencing" element={<SurvGenomicSequencing />} />
+          <Route path="/surveillance/outbreak-cluster-detection" element={<SurvOutbreakClusterDetection />} />
+          <Route path="/surveillance/r0-estimation" element={<SurvR0Estimation />} />
+          <Route path="/surveillance/who-ihr-reporting" element={<SurvWhoIhrReporting />} />
+          <Route path="/surveillance/cross-border-alerts" element={<SurvCrossBorderAlerts />} />
+          {/* End Pandemic Surveillance Routes */}
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
       </div>

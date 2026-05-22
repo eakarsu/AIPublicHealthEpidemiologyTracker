@@ -1,0 +1,60 @@
+import SurveillanceFeaturePage from './SurveillanceFeaturePage';
+
+const feature = {
+  slug: 'r0-estimation',
+  label: 'R0 / Rt Estimation',
+  icon: '📈',
+  description: 'Estimate basic and effective reproduction numbers to assess transmission intensity',
+  fields: [
+    'pathogen', 'region', 'estimate_date', 'r_effective', 'r_effective_lower', 'r_effective_upper',
+    'r_zero', 'serial_interval_mean', 'serial_interval_sd', 'generation_time', 'estimation_method',
+    'data_window_days', 'case_count_window', 'reporting_delay_adjusted', 'import_fraction',
+    'transmission_regime', 'doubling_time', 'halving_time', 'intervention_context', 'data_quality_score',
+    'status', 'notes',
+  ],
+  columns: ['pathogen', 'region', 'r_effective', 'transmission_regime', 'estimate_date', 'data_quality_score'],
+  fieldTypes: {
+    estimate_date: 'date',
+    r_effective: 'number',
+    r_effective_lower: 'number',
+    r_effective_upper: 'number',
+    r_zero: 'number',
+    serial_interval_mean: 'number',
+    serial_interval_sd: 'number',
+    generation_time: 'number',
+    data_window_days: 'number',
+    case_count_window: 'number',
+    import_fraction: 'number',
+    doubling_time: 'number',
+    halving_time: 'number',
+    data_quality_score: 'number',
+    reporting_delay_adjusted: 'checkbox',
+    intervention_context: 'textarea',
+    notes: 'textarea',
+    transmission_regime: { type: 'select', options: ['growing', 'stable', 'declining', 'controlled', 'resurgent'] },
+    estimation_method: { type: 'select', options: ['EpiEstim', 'Bettencourt-Ribeiro', 'Wallinga-Teunis', 'SIR-fit', 'Other'] },
+    status: { type: 'select', options: ['active', 'inactive', 'deleted'] },
+  },
+  aiVerbs: [
+    { name: 'interpret-r-value', label: 'Interpret R Value', fields: ['r_effective', 'r_effective_lower', 'r_effective_upper', 'pathogen'] },
+    { name: 'predict-epidemic-trajectory', label: 'Predict Epidemic Trajectory', fields: ['r_effective', 'pathogen', 'region', 'population_size'] },
+    { name: 'recommend-intervention-intensity', label: 'Recommend Intervention Intensity', fields: ['r_effective', 'pathogen', 'region', 'current_interventions'] },
+    { name: 'assess-estimation-uncertainty', label: 'Assess Estimation Uncertainty', fields: ['r_effective_lower', 'r_effective_upper', 'data_quality_score'] },
+    { name: 'compare-r-across-regions', label: 'Compare R Across Regions', fields: ['region_estimates', 'pathogen', 'time_period'] },
+    { name: 'detect-r-changepoint', label: 'Detect R Changepoint', fields: ['r_time_series', 'intervention_dates', 'pathogen'] },
+    { name: 'predict-herd-immunity-threshold', label: 'Predict Herd Immunity Threshold', fields: ['r_zero', 'pathogen', 'vaccine_effectiveness'] },
+    { name: 'generate-r-narrative', label: 'Generate R Narrative', fields: ['r_effective', 'pathogen', 'region', 'audience'] },
+    { name: 'recommend-data-window', label: 'Recommend Data Window', fields: ['pathogen', 'data_quality', 'serial_interval_mean'] },
+    { name: 'assess-reporting-delay-impact', label: 'Assess Reporting Delay Impact', fields: ['reporting_delay', 'r_effective', 'case_counts'] },
+    { name: 'classify-transmission-phase', label: 'Classify Transmission Phase', fields: ['r_effective', 'r_trend', 'pathogen'] },
+    { name: 'predict-peak-timing', label: 'Predict Peak Timing', fields: ['r_effective', 'susceptible_fraction', 'generation_time'] },
+    { name: 'assess-intervention-effect', label: 'Assess Intervention Effect', fields: ['pre_intervention_r', 'post_intervention_r', 'intervention_type'] },
+    { name: 'summarize-transmission-dynamics', label: 'Summarize Transmission Dynamics', fields: ['r_effective', 'pathogen', 'region', 'time_period'] },
+    { name: 'recommend-monitoring-frequency', label: 'Recommend Monitoring Frequency', fields: ['r_effective', 'r_volatility', 'pathogen'] },
+    { name: 'generate-policy-brief', label: 'Generate Policy Brief', fields: ['r_effective', 'pathogen', 'region', 'policy_context'] },
+  ],
+};
+
+export default function SurvR0Estimation() {
+  return <SurveillanceFeaturePage feature={feature} />;
+}
