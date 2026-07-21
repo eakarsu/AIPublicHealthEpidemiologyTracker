@@ -3,14 +3,22 @@ const cors = require('cors');
 const helmet = require('helmet');
 const pool = require('./db');
 require('dotenv').config({ path: '../.env' });
+const auth = require('./middleware/auth');
+const { validateRuntime } = require('./governance/runtime');
+const { createProviderGate } = require('./governance/providerGate');
+const governanceRouter = require('./governance/router');
+
+validateRuntime();
 
 const app = express();
 const PORT = process.env.BACKEND_PORT || 4001;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 app.use(helmet());
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+const allowedOrigins=String(process.env.CORS_ORIGINS||CLIENT_URL).split(',').map(v=>v.trim()).filter(Boolean);
+app.use(cors({origin:(origin,cb)=>!origin||allowedOrigins.includes(origin)?cb(null,true):cb(new Error('Origin not allowed by CORS')),credentials:true}));
 app.use(express.json());
+app.use(createProviderGate(['/api/ai','/api/gap','/api/surveillance']));
 
 // Ensure ai_analyses and alert_subscriptions tables exist on startup
 async function ensureTables() {
@@ -40,6 +48,8 @@ async function ensureTables() {
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
+app.get('/api/health', (_req,res)=>res.json({status:'ok',timestamp:new Date().toISOString()}));
+app.use('/api', auth);
 app.use('/api/outbreaks', require('./routes/outbreaks'));
 app.use('/api/vaccinations', require('./routes/vaccinations'));
 app.use('/api/contact-tracing', require('./routes/contactTracing'));
@@ -55,6 +65,7 @@ app.use('/api/health-equity', require('./routes/healthEquity'));
 app.use('/api/ai-center', require('./routes/aiCenter'));
 app.use('/api/ai', require('./routes/aiHistory'));
 app.use('/api/alerts', require('./routes/alertSubscriptions'));
+app.use('/api/governed-epidemiology-observations', governanceRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -63,7 +74,8 @@ app.get('/api/health', (req, res) => {
 // Custom Views (Epi Views) - mounted before any 404 handler
 app.use('/api/custom-views', require('./routes/customViews'));
 
-ensureTables()
+const startup = process.env.ENABLE_LEGACY_SCHEMA_BOOTSTRAP === 'true' ? ensureTables() : Promise.resolve();
+startup
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Backend server running on port ${PORT}`);

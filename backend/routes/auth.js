@@ -30,6 +30,9 @@ router.post('/login', async (req, res) => {
 
 // Get demo credentials
 router.get('/demo-credentials', (req, res) => {
+  if (process.env.NODE_ENV === 'production' || process.env.ALLOW_DEMO_SEED !== 'true') {
+    return res.status(404).json({ error: 'Not found' });
+  }
   res.json({
     email: process.env.DEMO_EMAIL,
     password: process.env.DEMO_PASSWORD,
