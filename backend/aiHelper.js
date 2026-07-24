@@ -24,7 +24,8 @@ async function queryAI(systemPrompt, userPrompt, options = {}) {
 
   if (!apiKey) throw new Error('OPENROUTER_API_KEY not configured');
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const baseUrl = String(process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/$/, '');
+  const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,

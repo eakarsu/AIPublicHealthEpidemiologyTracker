@@ -18,7 +18,7 @@ app.use(helmet());
 const allowedOrigins=String(process.env.CORS_ORIGINS||CLIENT_URL).split(',').map(v=>v.trim()).filter(Boolean);
 app.use(cors({origin:(origin,cb)=>!origin||allowedOrigins.includes(origin)?cb(null,true):cb(new Error('Origin not allowed by CORS')),credentials:true}));
 app.use(express.json());
-app.use(createProviderGate(['/api/ai','/api/gap','/api/surveillance']));
+app.use(createProviderGate(['/api/gap']));
 
 // Ensure ai_analyses and alert_subscriptions tables exist on startup
 async function ensureTables() {

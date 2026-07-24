@@ -28,6 +28,19 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.get('/me', async (req, res) => {
+  try {
+    const token = req.header('Authorization')?.replace(/^Bearer\s+/i, '');
+    if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const result = await pool.query('SELECT id, email, name, role FROM users WHERE id = $1', [decoded.id]);
+    if (!result.rows.length) return res.status(404).json({ error: 'User not found' });
+    return res.json(result.rows[0]);
+  } catch {
+    return res.status(401).json({ error: 'Invalid token.' });
+  }
+});
+
 // Get demo credentials
 router.get('/demo-credentials', (req, res) => {
   if (process.env.NODE_ENV === 'production' || process.env.ALLOW_DEMO_SEED !== 'true') {
