@@ -33,8 +33,8 @@ export default function Login({ onLogin }) {
       setEmail(data.email);
       setPassword(data.password);
     } catch {
-      setEmail('admin@healthdept.gov');
-      setPassword('EpidTracker2024!');
+      setEmail(import.meta.env.VITE_DEMO_EMAIL || '');
+      setPassword(import.meta.env.VITE_DEMO_PASSWORD || '');
     }
   };
 
