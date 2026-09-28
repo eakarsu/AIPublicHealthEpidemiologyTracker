@@ -60,6 +60,7 @@ source "$PROJECT_DIR/.env"
 set +a
 BACKEND_PORT="${BACKEND_PORT:-3001}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
+export CORS_ORIGINS="${CORS_ORIGINS:-},http://127.0.0.1:$FRONTEND_PORT,http://localhost:$FRONTEND_PORT"
 CHILD_PIDS=()
 require_file(){ [ -f "$1" ]||{ echo "Missing required file: $1" >&2;exit 1;};}
 require_dir(){ [ -d "$1" ]||{ echo "Missing dependencies: $1 (install explicitly before startup)" >&2;exit 1;};}
@@ -71,6 +72,6 @@ require_dir "$PROJECT_DIR/backend/node_modules"
 require_dir "$PROJECT_DIR/frontend/node_modules"
 port_free "$BACKEND_PORT";port_free "$FRONTEND_PORT"
 (cd "$PROJECT_DIR/backend"&&BACKEND_PORT="$BACKEND_PORT" node server.js)&CHILD_PIDS+=("$!")
-(cd "$PROJECT_DIR/frontend"&&npm run dev -- --port "$FRONTEND_PORT" --host 127.0.0.1 --strictPort)&CHILD_PIDS+=("$!")
+(cd "$PROJECT_DIR/frontend"&&BACKEND_PORT="$BACKEND_PORT" npm run dev -- --port "$FRONTEND_PORT" --host 127.0.0.1 --strictPort)&CHILD_PIDS+=("$!")
 echo "Epidemiology services started without installing, seeding, migrating, or reclaiming ports."
 wait "${CHILD_PIDS[@]}"
