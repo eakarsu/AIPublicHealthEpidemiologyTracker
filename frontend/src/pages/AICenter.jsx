@@ -1,3 +1,4 @@
+import NativeAIControls from "../components/NativeAIControls.jsx";
 import { useState } from 'react';
 import AIAnalysis from '../components/AIAnalysis';
 
@@ -80,7 +81,7 @@ export default function AICenter() {
   };
 
   return (
-    <>
+    <NativeAIControls busy={loading || customLoading} context="PublicHealthEpidemiologyTracker"><>
       <div className="page-header">
         <div>
           <h1>🤖 AI Command Center</h1>
@@ -94,7 +95,7 @@ export default function AICenter() {
           <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#553c9a' }}>
             🔮 Ask AI Anything About Public Health
           </h3>
-          <textarea
+          <textarea data-ai-field={"customQuery"}
             value={customQuery}
             onChange={e => setCustomQuery(e.target.value)}
             placeholder="Ask any public health question... e.g., 'What are the top disease threats right now?' or 'How should we prioritize resource allocation?'"
@@ -130,6 +131,6 @@ export default function AICenter() {
           ))}
         </div>
       </div>
-    </>
+    </></NativeAIControls>
   );
 }

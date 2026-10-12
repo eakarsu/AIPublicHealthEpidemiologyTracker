@@ -1,3 +1,4 @@
+import NativeAIControls from '../components/NativeAIControls';
 import { useState } from 'react';
 import AIAnalysis from '../components/AIAnalysis';
 
@@ -52,7 +53,7 @@ export default function CaseClustering() {
       </div>
 
       <div className="ai-input-form">
-        <form onSubmit={handleRun}>
+        <NativeAIControls busy={loading} presets={['Northeast review','Central review','West review'].map((name,index)=>({name,fill:()=>{setRegion(['Northeast US','Central US','Western US'][index]);setWindowDays([7,14,30][index]);return {filled:2};}}))}><form onSubmit={handleRun}>
           <div style={{ display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 240px' }}>
               <label>Region (optional)</label>
@@ -79,7 +80,7 @@ export default function CaseClustering() {
               </button>
             </div>
           </div>
-        </form>
+        </form></NativeAIControls>
         {error && (
           <div
             style={{
@@ -127,7 +128,7 @@ export default function CaseClustering() {
         </div>
       )}
 
-      {!loading && content && <AIAnalysis content={content} />}
+      {!loading && result && <AIAnalysis content={result} />}
     </div>
   );
 }

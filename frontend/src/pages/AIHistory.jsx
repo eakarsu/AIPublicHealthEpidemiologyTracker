@@ -1,3 +1,4 @@
+import FormattedAIReport from '../components/FormattedAIReport';
 import { useState, useEffect } from 'react';
 import AIAnalysis from '../components/AIAnalysis';
 
@@ -69,7 +70,7 @@ export default function AIHistory() {
                     <div style={{ padding: '0 16px 16px' }}>
                       {item.input_data && Object.keys(item.input_data).length > 0 && (
                         <div style={{ marginBottom: 8, padding: 8, background: '#f8fafc', borderRadius: 6, fontSize: 12, color: '#475569' }}>
-                          <strong>Input:</strong> {JSON.stringify(item.input_data)}
+                          <FormattedAIReport response={item.input_data} title="Saved analysis inputs" />
                         </div>
                       )}
                       <AIAnalysis content={item.result} />

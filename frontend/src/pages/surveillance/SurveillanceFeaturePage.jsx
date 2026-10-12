@@ -1,3 +1,5 @@
+import FormattedAIReport from '../../components/FormattedAIReport';
+import SurveillanceAIPresets from '../../components/SurveillanceAIPresets';
 import { useState, useEffect, useCallback } from 'react';
 
 function formatLabel(key) {
@@ -52,7 +54,7 @@ function Pagination({ page, totalPages, onPageChange }) {
   );
 }
 
-function AIPanel({ feature, onClose }) {
+export function AIPanel({ feature, sourceRecords = [], selectedRecord = null, onClose }) {
   const [activeVerb, setActiveVerb] = useState(null);
   const [formInputs, setFormInputs] = useState({});
   const [result, setResult] = useState(null);
@@ -107,13 +109,14 @@ function AIPanel({ feature, onClose }) {
           {activeVerb && (
             <div>
               <h3 style={{ marginBottom: 12, fontSize: 15, color: '#4a5568' }}>{activeVerb.label}</h3>
+              <SurveillanceAIPresets feature={feature} verb={activeVerb} sourceRecords={sourceRecords} selectedRecord={selectedRecord} values={formInputs} onFill={setFormInputs} disabled={loading} />
               <div className="form-grid">
                 {activeVerb.fields.map(field => (
                   <div className="form-group" key={field}>
                     <label>{formatLabel(field)}</label>
                     <input
                       type="text"
-                      placeholder={`Enter ${formatLabel(field).toLowerCase()}…`}
+                      data-ai-field={field} placeholder={`Enter ${formatLabel(field).toLowerCase()}…`}
                       value={formInputs[field] || ''}
                       onChange={e => setFormInputs(p => ({ ...p, [field]: e.target.value }))}
                     />
@@ -136,9 +139,7 @@ function AIPanel({ feature, onClose }) {
           {result && (
             <div style={{ marginTop: 16 }}>
               <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 14, color: '#2d3748' }}>Result</div>
-              <pre style={{ padding: 12, background: '#f7f9fc', borderRadius: 6, overflow: 'auto', maxHeight: 400, fontSize: 12, border: '1px solid #e2e8f0' }}>
-                {typeof result === 'string' ? result : JSON.stringify(result, null, 2)}
-              </pre>
+              <FormattedAIReport response={result} title="Surveillance analysis report" />
             </div>
           )}
         </div>
@@ -442,7 +443,7 @@ export default function SurveillanceFeaturePage({ feature }) {
       )}
 
       {/* AI Verbs Panel */}
-      {showAIPanel && <AIPanel feature={feature} onClose={() => setShowAIPanel(false)} />}
+      {showAIPanel && <AIPanel feature={feature} sourceRecords={items} selectedRecord={selected} onClose={() => setShowAIPanel(false)} />}
     </>
   );
 }

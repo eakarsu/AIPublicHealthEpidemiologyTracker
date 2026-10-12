@@ -1,4 +1,4 @@
-import ReactMarkdown from 'react-markdown';
+import FormattedAIReport from './FormattedAIReport';
 
 export default function AIAnalysis({ content, loading }) {
   if (loading) {
@@ -31,7 +31,7 @@ export default function AIAnalysis({ content, loading }) {
         </div>
       </div>
       <div className="ai-analysis-content">
-        <ReactMarkdown>{content}</ReactMarkdown>
+        <FormattedAIReport response={content} title="Public health analysis report" />
       </div>
     </div>
   );
